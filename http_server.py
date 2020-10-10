@@ -4,6 +4,7 @@ import traceback
 import os
 import mimetypes
 
+
 class HttpServer():
 
     @staticmethod
@@ -55,8 +56,7 @@ class HttpServer():
         Then you would return "/images/sample_1.png"
         """
 
-        return "TODO: COMPLETE THIS"  # TODO
-
+        return request.split(" ")[1]
 
     @staticmethod
     def get_mimetype(path):
@@ -84,11 +84,16 @@ class HttpServer():
             # This function should return an appropriate mimetype event
             # for files that don't exist.
         """
-
-        if path.endswith('/'):
+        if path.endswith('.png'):
+            return b"image/png"
+        elif path.endswith('.jpg'):
+            return b"image/jpg"
+        elif path.endswith('.ico'):
+            return b"image/vnd.microsoft.icon"
+        elif path.endswith('.py'):
             return b"text/plain"
         else:
-            return b"TODO: FINISH THE REST OF THESE CASES"  # TODO
+            return b"text/html"
 
     @staticmethod
     def get_content(path):
@@ -155,11 +160,11 @@ class HttpServer():
 
                         if '\r\n\r\n' in request:
                             break
-                    
+
                     print("Request received:\n{}\n\n".format(request))
 
                     path = self.get_path(request)
-                    
+
                     try:
                         body = self.get_content(path)
                         mimetype = self.get_mimetype(path)
@@ -180,7 +185,7 @@ class HttpServer():
                 except:
                     traceback.print_exc()
                 finally:
-                    conn.close() 
+                    conn.close()
 
         except KeyboardInterrupt:
             sock.close()
@@ -193,8 +198,7 @@ if __name__ == '__main__':
     try:
         port = int(sys.argv[1])
     except IndexError:
-        port = 10000 
+        port = 10000
 
     server = HttpServer(port)
     server.serve()
-
