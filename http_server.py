@@ -59,7 +59,7 @@ class HttpServer():
         return request.split(" ")[1]
 
     @staticmethod
-    def get_mimetype(path):
+    def get_mimetype(file_path):
         """
         This method should return a suitable mimetype for the given `path`.
 
@@ -84,16 +84,15 @@ class HttpServer():
             # This function should return an appropriate mimetype event
             # for files that don't exist.
         """
-        if path.endswith('.png'):
+        if file_path.endswith('.png'):
             return b"image/png"
-        elif path.endswith('.jpg'):
-            return b"image/jpg"
-        elif path.endswith('.ico'):
+        if file_path.endswith('.jpg'):
+            return b"image/jpeg"
+        if file_path.endswith('.ico'):
             return b"image/vnd.microsoft.icon"
-        elif path.endswith('.py'):
-            return b"text/plain"
-        else:
+        if file_path.endswith('.html') or os.path.isdir(f'webroot/{file_path}'):
             return b"text/html"
+        return b"text/plain"
 
     @staticmethod
     def get_content(path):
@@ -124,7 +123,7 @@ class HttpServer():
             get_content('/') -> images/, a_web_page.html, make_type.py,..."
             # Returns a directory listing of `webroot/`
 
-            get_content('/a_page_that_doesnt_exist.html') 
+            get_content('/a_page_that_doesnt_exist.html')
             # The file `webroot/a_page_that_doesnt_exist.html`) doesn't exist,
             # so this should raise a FileNotFoundError.
         """
@@ -132,14 +131,17 @@ class HttpServer():
         if not os.path.exists(full_path):
             raise FileNotFoundError
         if os.path.isdir(full_path):
-            if path == '/':
-                home_string = ''.join(
-                    [f'<li><a href={file}>{file}</a></li>' for file in os.listdir(full_path)])
-                return f'<ul style="list-style-type:none;">{home_string}</ul>'.encode()
-            else:
-                dir_string = ''.join(
-                    [f'<li><a href={path}/{file}>{file}</a></li>' for file in os.listdir(full_path)])
-                return f'<ul style="list-style-type:none;">{dir_string}</ul>'.encode()
+            contents_list = []
+            for file in os.listdir(full_path):
+                if path == '/':
+                    contents_list.append(
+                        f'<li><a href={file}>{file}</a></li>')
+                else:
+                    contents_list.append(
+                        f'<li><a href={path}/{file}>{file}</a></li>')
+            dir_string = ''.join(contents_list)
+            return f'<ul style="list-style-type:none;">{dir_string}</ul>'.encode()
+
         else:
             with open(full_path, 'rb') as f:
                 content = f.read()
