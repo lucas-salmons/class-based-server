@@ -131,7 +131,19 @@ class HttpServer():
         full_path = "webroot"+path
         if not os.path.exists(full_path):
             raise FileNotFoundError
-        return b"Not implemented!"  # TODO: Complete this function.
+        if os.path.isdir(full_path):
+            if path == '/':
+                home_string = ''.join(
+                    [f'<li><a href={file}>{file}</a></li>' for file in os.listdir(full_path)])
+                return f'<ul style="list-style-type:none;">{home_string}</ul>'.encode()
+            else:
+                dir_string = ''.join(
+                    [f'<li><a href={path}/{file}>{file}</a></li>' for file in os.listdir(full_path)])
+                return f'<ul style="list-style-type:none;">{dir_string}</ul>'.encode()
+        else:
+            with open(full_path, 'rb') as f:
+                content = f.read()
+            return content
 
     def __init__(self, port):
         self.port = port
