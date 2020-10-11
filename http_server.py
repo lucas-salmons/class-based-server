@@ -84,13 +84,20 @@ class HttpServer():
             # This function should return an appropriate mimetype event
             # for files that don't exist.
         """
+        if os.path.exists(f'webroot{file_path}'):
+            if os.path.isdir(f'webroot{file_path}'):
+                # directories are html <ul>s
+                return b"text/html"
+            return mimetypes.guess_type(file_path)[0].encode()
+        # additonal checks to provide common file MIMEs
+        # catches missing files based on name
         if file_path.endswith('.png'):
             return b"image/png"
         if file_path.endswith('.jpg'):
             return b"image/jpeg"
         if file_path.endswith('.ico'):
             return b"image/vnd.microsoft.icon"
-        if file_path.endswith('.html') or os.path.isdir(f'webroot/{file_path}'):
+        if file_path.endswith('.html'):
             return b"text/html"
         return b"text/plain"
 
